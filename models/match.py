@@ -6,7 +6,7 @@ class Match:
     Classe qui définit un match.
     """
 
-    def __init__(self, list_of_two_players):
+    def __init__(self, list_of_two_players:list):
         self.list_of_two_players = list_of_two_players
         self.assign_color_to_player()
         self.color_distribution = {}

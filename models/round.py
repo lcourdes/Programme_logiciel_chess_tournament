@@ -1,5 +1,5 @@
-from Autres import *
-from match import Match
+from utils import *
+from models.match import Match
 
 
 class Round:
@@ -7,7 +7,7 @@ class Round:
     Classe qui définit un tour de tournoi.
     """
 
-    def __init__(self, name, list_of_players):
+    def __init__(self, name:str, list_of_players:list):
         self.name = name
         self.list_of_players = list_of_players
         self.pairing_players = []
@@ -28,7 +28,7 @@ class Round:
                                             [[Joueur_1, Joueur_2], [...]]
         """
 
-        sorted_players_by_ranking = class_by_ranking(self.list_of_players)
+        sorted_players_by_ranking = sort_by_ranking(self.list_of_players)
         n = len(sorted_players_by_ranking) // 2
         sorted_players_by_ranking_first_group = sorted_players_by_ranking[:n]
         sorted_players_by_ranking_second_group = sorted_players_by_ranking[n:]
@@ -61,7 +61,7 @@ class Round:
         list_of_players = []
         for score, players in sorted_player_by_score.items():
             if len(players) > 1:
-                sorted_players_by_ranking = class_by_ranking(players)
+                sorted_players_by_ranking = sort_by_ranking(players)
                 list_of_players = list_of_players + sorted_players_by_ranking
             else:
                 list_of_players.append(players[0])
@@ -76,7 +76,7 @@ class Round:
                     break
         return self.pairing_players
 
-    def create_matches_of_round(self):
+    def create_matches(self):
         """
         Cette méthode permet de créer des matchs à partir de la liste 'pairing_players' obtenue par une méthode
         d'appariement (soit first_round_pairing(), soit other_round_pairing()).
@@ -86,12 +86,12 @@ class Round:
         """
 
         for pair_of_player in self.pairing_players:
-            match = Match(pair_of_player)
+            match = Match(list_of_two_players=pair_of_player)
             self.list_of_matches.append(match)
 
         return self.list_of_matches
 
-    def get_results_of_round(self):
+    def get_results(self):
         """
         Cette méthode permet de récupérer les résultats de tous les matchs du round.
 

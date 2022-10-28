@@ -1,4 +1,4 @@
-from round import Round
+from models.round import Round
 
 
 class Tournament:
@@ -6,7 +6,8 @@ class Tournament:
     Classe qui définit un tournoi.
     """
 
-    def __init__(self, name, place, date_of_tournament, list_of_players, description, number_of_round=4):
+    def __init__(self, name:str, place:str, date_of_tournament:str, list_of_players:list, description:str,
+                 number_of_round:int=4):
         self.name = name
         self.place = place
         self.date_of_tournament = date_of_tournament
@@ -32,7 +33,7 @@ class Tournament:
 
         return self.players_score
 
-    def create_rounds_of_tournament(self):
+    def create_rounds(self):
         """
         Cette méthode crée une liste des rounds du tournoi.
 
@@ -41,7 +42,7 @@ class Tournament:
         """
         for i in range(self.number_of_rounds):
             name_of_round = "Round " + str(i + 1)
-            self.list_of_rounds.append(Round(name_of_round, self.list_of_players))
+            self.list_of_rounds.append(Round(name=name_of_round, list_of_players=self.list_of_players))
 
         return self.list_of_rounds
 
@@ -64,7 +65,7 @@ class Tournament:
 
         return self.players_score
 
-    def class_by_score(self):
+    def sort_by_score(self):
         """
         Cette méthode permet de classer les joueurs du tournoi en fonction de leur score.
 
