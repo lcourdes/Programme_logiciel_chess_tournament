@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def sort_by_ranking(list_of_players):
     """
     Cette fonction permet de classer des joueurs en fonction de leur classement.
@@ -22,3 +25,16 @@ def sort_by_ranking(list_of_players):
                         continue
 
     return sorted_players_by_ranking
+
+
+def get_date_and_hour():
+    """
+    Récupère la date et l'heure actuelle.
+
+    Returns:
+        date_and_hour = une liste contenant la date et l'heure actuelle.
+    """
+    date = datetime.now()
+    date_and_hour = [date.strftime("%d-%m-%y"), date.strftime("%H:%M")]
+
+    return date_and_hour
