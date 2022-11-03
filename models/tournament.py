@@ -98,6 +98,7 @@ class Tournament:
                 self.all_pairing_matches.append(match.list_of_two_players)
 
         return self.all_pairing_matches
+
     def serialize(self):
         """
         Cette méthode permet de sérialiser l'instance.
@@ -124,3 +125,21 @@ class Tournament:
             serialized_tournament['players_score'] = {player.id: score for player, score in self.players_score.items()}
 
         return serialized_tournament
+
+    def back_up_data(self):
+        """
+        Cette fonction permet de sauvegarder les informations des joueurs et du tournoi dans une table 'players' et
+        'tournament' TinyDB.
+        """
+        players_table = self.db.table('players')
+        players_table.truncate()
+        serialized_players = []
+        for player in self.list_of_players:
+            serialized_players.append(player.serialize())
+        players_table.insert_multiple(serialized_players)
+        for index, player in enumerate(self.list_of_players):
+            player.id = index + 1
+
+        tournament_table = self.db.table('tournament')
+        tournament_table.truncate()
+        tournament_table.insert(self.serialize())
