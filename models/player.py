@@ -22,3 +22,39 @@ class Player:
         """
         self.ranking = new_ranking
         return self.ranking
+
+    def serialize(self):
+        """
+        Cette méthode permet de sérialiser l'instance.
+
+        Returns:
+             serialized_player = dictionnaire de l'instance.
+        """
+        serialized_player = {
+            'name': self.name,
+            'first_name': self.first_name,
+            'date_of_birth': self.date_of_birth,
+            'gender': self.gender,
+            'ranking': self.ranking
+        }
+
+        return serialized_player
+
+    @classmethod
+    def create_instance(cls, player_dict):
+        """
+        Cette méthode permet de créer une instance de Player à partir d'un dictionnaire d'un joueur.
+
+        Arg:
+            player_dict = un dictionnaire contenant les informations d'un joueur.
+
+        Returns:
+            une instance de Player.
+        """
+        name = player_dict['name']
+        first_name = player_dict['first_name']
+        date_of_birth = player_dict['date_of_birth']
+        gender = player_dict['gender']
+        ranking = player_dict['ranking']
+
+        return cls(name, first_name, date_of_birth, gender, ranking)
