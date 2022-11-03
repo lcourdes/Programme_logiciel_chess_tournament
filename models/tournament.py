@@ -143,3 +143,26 @@ class Tournament:
         tournament_table = self.db.table('tournament')
         tournament_table.truncate()
         tournament_table.insert(self.serialize())
+
+    @classmethod
+    def load_list_of_players(cls):
+        db = TinyDB('db.json')
+        players_table = db.table('players')
+        serialized_players = players_table.all()
+        list_of_players = []
+        n = 1
+        for player_dict in serialized_players:
+            player = Player.create_instance(player_dict)
+            player.id = n
+            n += 1
+            list_of_players.append(player)
+
+        return list_of_players
+
+    @classmethod
+    def load_tournament(cls):
+        db = TinyDB('db.json')
+        tournament_table = db.table('tournament')
+        serialized_tournament = tournament_table.all()
+
+        return serialized_tournament[0]
