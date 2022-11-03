@@ -98,3 +98,29 @@ class Tournament:
                 self.all_pairing_matches.append(match.list_of_two_players)
 
         return self.all_pairing_matches
+    def serialize(self):
+        """
+        Cette méthode permet de sérialiser l'instance.
+
+        Returns:
+             serialized_tournament = dictionnaire de l'instance.
+        """
+        serialized_tournament = {'name': self.name,
+                                 'place': self.place,
+                                 'date_of_tournament': self.date_of_tournament,
+                                 'creation_date': self.creation_date,
+                                 'description': self.description,
+                                 'number_of_rounds': self.number_of_rounds
+                                 }
+
+        if self.list_of_rounds == []:
+            serialized_tournament['list_of_rounds'] = []
+        else:
+            serialized_tournament['list_of_rounds'] = [round.serialize() for round in self.list_of_rounds]
+
+        if self.players_score == {}:
+            serialized_tournament['players_score'] = {}
+        else:
+            serialized_tournament['players_score'] = {player.id: score for player, score in self.players_score.items()}
+
+        return serialized_tournament
