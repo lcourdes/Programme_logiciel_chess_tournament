@@ -1,4 +1,7 @@
+from tinydb import TinyDB
+from utils import get_date_and_hour
 from models.round import Round
+from models.player import Player
 
 
 class Tournament:
@@ -6,32 +9,20 @@ class Tournament:
     Classe qui définit un tournoi.
     """
 
-    def __init__(self, name:str, place:str, date_of_tournament:str, list_of_players:list, description:str,
-                 number_of_round:int=4):
+    def __init__(self, name: str, place: str, date_of_tournament: str, description: str, number_of_rounds: int = 4):
         self.name = name
         self.place = place
         self.date_of_tournament = date_of_tournament
-        self.list_of_players = list_of_players
+        self.list_of_players = []
         self.description = description
-        self.number_of_rounds = number_of_round
+        self.number_of_rounds = number_of_rounds
+        self.db = TinyDB('db.json')
 
+        self.creation_date = get_date_and_hour()
         self.list_of_rounds = []
         self.players_score = {}
         self.sorted_player_by_score = {}
         self.all_pairing_matches = []
-
-    def create_players_score(self):
-        """
-        Cette méthode permet d'initialiser le tableau des scores des joueurs du tournoi.
-
-        Returns:
-             players_score est désormais un dictionnaire dans lequel les clés sont les objets joueurs et les valeurs
-             sont toutes égales à 0.
-        """
-        for player in self.list_of_players:
-            self.players_score[player] = 0
-
-        return self.players_score
 
     def create_rounds(self):
         """
@@ -46,23 +37,26 @@ class Tournament:
 
         return self.list_of_rounds
 
-    def actualize_players_score(self, results_matches_of_a_round):
+    def get_players_score(self):
         """
         Cette méthode actualise le score des joueurs.
 
-        Args:
-            results_matches_of_a_round = liste de résultats obtenue grâce à la méthode get_results_of_round() de
-        la classe Round.
-
         Returns:
-             players_score = dictionnaire dont les valeurs sont le résultat des anciens scores additionnés au score
-             du round.
+             self.players_score = dictionnaire dont les clés correspondent aux joueurs et les valeurs au calcul des
+             scores sur l'ensemble des matches joués.
         """
+        players_score = {}
+        for player in self.list_of_players:
+            players_score[player] = 0
 
-        for results_of_match in results_matches_of_a_round:
-            for player in results_of_match:
-                self.players_score[player[0]] = self.players_score[player[0]] + player[1]
+        for round in self.list_of_rounds:
+            results_matches_of_a_round = round.get_results()
+            if results_matches_of_a_round != []:
+                for results_of_match in results_matches_of_a_round:
+                    for player in results_of_match:
+                        players_score[player[0]] = players_score[player[0]] + player[1]
 
+        self.players_score = players_score
         return self.players_score
 
     def sort_by_score(self):
@@ -75,6 +69,7 @@ class Tournament:
                                                 - les valeurs : une liste des joueurs ayant obtenu ce score.
         """
 
+        self.get_players_score()
         score_list = []
         for score in sorted(self.players_score.values(), reverse=True):
             if score not in score_list:
