@@ -7,7 +7,7 @@ class Round:
     Classe qui définit un tour de tournoi.
     """
 
-    def __init__(self, name:str, list_of_players:list):
+    def __init__(self, name: str, list_of_players: list):
         self.name = name
         self.list_of_players = list_of_players
         self.pairing_players = []
@@ -99,8 +99,69 @@ class Round:
              self.results_of_matches = une liste contenant les résultats de chaque match stocké dans des tuples.
                                         [([Joueur, Score], [Joueur, Score]), (), ...]
         """
+        self.results_of_matches = []
         for match in self.list_of_matches:
-            result = match.get_result()
+            result = match.result
             self.results_of_matches.append(result)
-
         return self.results_of_matches
+
+    def serialize(self):
+        """
+        Cette méthode permet de sérialiser l'instance.
+
+        Returns:
+             serialized_round = dictionnaire de l'instance.
+        """
+        serialized_round = {'name': self.name}
+
+        if self.pairing_players == []:
+            serialized_round['pairing_players'] = []
+        else:
+            players = []
+            for pair_of_players in self.pairing_players:
+                pair = [pair_of_players[0].id, pair_of_players[1].id]
+                players.append(pair)
+            serialized_round['pairing_players'] = players
+
+        if self.list_of_matches == []:
+            serialized_round['list_of_matches'] = []
+        else:
+            all_matches = [match.serialize() for match in self.list_of_matches]
+            serialized_round['list_of_matches'] = all_matches
+
+        return serialized_round
+
+    @classmethod
+    def create_instance(cls, round_dict: dict, list_of_players: list):
+        """
+        Cette méthode permet de créer une instance de Round à partir d'un dictionnaire d'un round.
+
+        Arg:
+            round = un dictionnaire contenant les informations d'un round.
+            list_of_players = la liste des objets joueurs.
+
+        Returns:
+            une instance de Round.
+        """
+        name = round_dict['name']
+        created_round = cls(name, list_of_players)
+
+        all_pairing = round_dict['pairing_players']
+        pairing_players = []
+        for ids in all_pairing:
+            pair = []
+            for player in list_of_players:
+                if player.id in ids:
+                    pair.append(player)
+            pairing_players.append(pair)
+        created_round.pairing_players = pairing_players
+
+        list_of_matches = []
+        for match_dict in round_dict['list_of_matches']:
+            match = Match.create_instance(match_dict, list_of_players)
+            list_of_matches.append(match)
+        created_round.list_of_matches = list_of_matches
+
+        created_round.results_of_matches = [match.result for match in list_of_matches]
+
+        return created_round
