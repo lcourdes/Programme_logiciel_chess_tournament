@@ -166,3 +166,38 @@ class Tournament:
         serialized_tournament = tournament_table.all()
 
         return serialized_tournament[0]
+
+    @classmethod
+    def create_instance(cls, tournament: dict, list_of_players: list):
+        """
+        Cette méthode permet de créer une instance de Tournament à partir d'un dictionnaire d'un tournoi.
+
+        Arg:
+            tournament = un dictionnaire contenant les informations d'un tournoi.
+            list_of_players = la liste des objets joueurs.
+
+        Returns:
+            une instance de Tournament.
+        """
+
+        name = tournament['name']
+        place = tournament['place']
+        date_of_tournament = tournament['date_of_tournament']
+        description = tournament['description']
+        number_of_rounds = tournament['number_of_rounds']
+
+        created_tournament = cls(name, place, date_of_tournament, description, number_of_rounds)
+        created_tournament.creation_date = tournament['creation_date']
+        created_tournament.list_of_players = list_of_players
+
+        created_tournament.list_of_rounds = [Round.create_instance(round, list_of_players) for round in
+                                             tournament['list_of_rounds']]
+        players_score = {}
+        if tournament['players_score'] != {}:
+            for player_id, score in tournament['players_score'].items():
+                for player in list_of_players:
+                    if player_id == player.id:
+                        players_score[player] = score
+        created_tournament.players_score = players_score
+
+        return created_tournament
