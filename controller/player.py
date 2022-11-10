@@ -1,4 +1,6 @@
-from views.player import *
+from views.player import view_player_menu, enough_players, view_create_or_add_player, enter_player, select_actor, \
+    view_player_successfully_added, view_player_already_in_tournament, view_sorted_player_by_name, \
+    view_sorted_player_by_ranking, view_modify_ranking, missing_players_for_ranking
 from models.player import Player
 from utils import sort_by_name, sort_by_ranking
 from views.utils import print_back_data

@@ -1,4 +1,4 @@
-from views.utils import *
+from views.utils import check_input, clear
 
 
 def view_start_program():

@@ -1,7 +1,11 @@
-from views.tournament import *
+from views.tournament import create_load_menu, data_loaded_successfully, no_existing_tournament, enter_tournament, \
+    view_tournament_manager_menu, missing_players, main_tournament_menu, view_tournament_details, \
+    view_tournament_is_ended, view_round_details, view_round_is_ended, view_get_result_of_match
+from views.utils import print_back_data, clear
 from models.tournament import Tournament
-from controller.player import *
-from controller.myexceptions import *
+from models.player import Player
+from controller.player import control_player_menu
+from controller.myexceptions import NoExistingTournament
 
 
 def control_create_load_tournament_menu(list_of_actors):
@@ -199,7 +203,7 @@ def control_round(tournament, list_of_actors):
         retourne le retour de la fonction 'control_round_details()'
     """
     round = check_if_round_in_progress(tournament)
-    if round == None:
+    if round is None:
         if not is_tournament_ended(tournament):
             round = launch_new_round(tournament)
         else:

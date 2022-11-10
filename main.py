@@ -1,4 +1,4 @@
-from controller.start_program import *
+from controller.start_program import start_program_menu
 from models.player import Player
 
 if __name__ == '__main__':

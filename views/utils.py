@@ -1,5 +1,5 @@
 import os
-from dateutil.parser import *
+from dateutil.parser import parse, ParserError
 
 
 def please_continue():

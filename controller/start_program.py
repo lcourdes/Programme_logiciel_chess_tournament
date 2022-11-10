@@ -1,5 +1,8 @@
-from views.start_program import *
-from controller.tournament import *
+from views.start_program import view_start_program
+from views.utils import print_back_data
+from controller.tournament import control_create_load_tournament_menu
+from controller.player import control_player_menu
+from models.player import Player
 
 
 def start_program_menu(list_of_actors):
