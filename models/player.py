@@ -12,6 +12,9 @@ class Player:
 
         self.id = None
 
+    def assign_id(self, list_of_actors):
+        self.id = len(list_of_actors)
+
     def modify_ranking(self, new_ranking):
         """
         Cette méthode permet de mettre à jour le classement d'un joueur.
