@@ -5,7 +5,6 @@ from views.utils import print_back_data, clear
 from models.tournament import Tournament
 from models.player import Player
 from controller.player import control_player_menu
-from controller.myexceptions import NoExistingTournament
 
 
 def control_create_load_tournament_menu(list_of_actors):
@@ -39,7 +38,7 @@ def control_create_load_tournament_menu(list_of_actors):
                 tournament = Tournament.create_instance(tournoi_dict, list_of_actors)
                 data_loaded_successfully(tournament.name)
                 return control_tournament_manager(list_of_actors, tournament)
-            except NoExistingTournament:
+            except IndexError:
                 no_existing_tournament()
                 continue
 
