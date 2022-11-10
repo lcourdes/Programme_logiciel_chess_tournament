@@ -1,4 +1,4 @@
-from utils import *
+from utils import sort_by_ranking
 from models.match import Match
 
 
