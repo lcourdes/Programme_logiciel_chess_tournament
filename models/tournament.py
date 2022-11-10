@@ -1,7 +1,6 @@
 from tinydb import TinyDB
 from utils import get_date_and_hour
 from models.round import Round
-from models.player import Player
 
 
 class Tournament:
@@ -31,7 +30,7 @@ class Tournament:
         Cette méthode crée une liste des rounds du tournoi.
 
         Returns:
-             self.list_of_rounds = une liste d'objets de la classe Round.
+             self.list_of_rounds = une liste d'instances de Round.
         """
         for i in range(self.number_of_rounds):
             name_of_round = "Round " + str(i + 1)
@@ -53,8 +52,8 @@ class Tournament:
 
         for round in self.list_of_rounds:
             results_matches_of_a_round = round.get_results()
-            if results_matches_of_a_round != []:
-                for results_of_match in results_matches_of_a_round:
+            for results_of_match in results_matches_of_a_round:
+                if results_of_match != ([], []):
                     for player in results_of_match:
                         players_score[player[0]] = players_score[player[0]] + player[1]
 
@@ -108,13 +107,15 @@ class Tournament:
         Returns:
              serialized_tournament = dictionnaire de l'instance.
         """
-        serialized_tournament = {'name': self.name,
-                                 'place': self.place,
-                                 'date_of_tournament': self.date_of_tournament,
-                                 'creation_date': self.creation_date,
-                                 'description': self.description,
-                                 'number_of_rounds': self.number_of_rounds
-                                 }
+        serialized_tournament = {
+            'name': self.name,
+            'place': self.place,
+            'date_of_tournament': self.date_of_tournament,
+            'creation_date': self.creation_date,
+            'description': self.description,
+            'game_type': self.game_type,
+            'number_of_rounds': self.number_of_rounds,
+            'list_of_players': [player.id for player in self.list_of_players]}
 
         if self.list_of_rounds == []:
             serialized_tournament['list_of_rounds'] = []
@@ -130,39 +131,21 @@ class Tournament:
 
     def back_up_data(self):
         """
-        Cette fonction permet de sauvegarder les informations des joueurs et du tournoi dans une table 'players' et
-        'tournament' TinyDB.
+        Cette fonction permet de sauvegarder les informations du tournoi en cours dans une table 'tournament' TinyDB.
         """
-        players_table = self.db.table('players')
-        players_table.truncate()
-        serialized_players = []
-        for player in self.list_of_players:
-            serialized_players.append(player.serialize())
-        players_table.insert_multiple(serialized_players)
-        for index, player in enumerate(self.list_of_players):
-            player.id = index + 1
-
         tournament_table = self.db.table('tournament')
         tournament_table.truncate()
         tournament_table.insert(self.serialize())
 
     @classmethod
-    def load_list_of_players(cls):
-        db = TinyDB('db.json')
-        players_table = db.table('players')
-        serialized_players = players_table.all()
-        list_of_players = []
-        n = 1
-        for player_dict in serialized_players:
-            player = Player.create_instance(player_dict)
-            player.id = n
-            n += 1
-            list_of_players.append(player)
-
-        return list_of_players
-
-    @classmethod
     def load_tournament(cls):
+        """
+        Cette méthode permet de charger les informations du tournoi en cours stockées dans la table 'tournament'
+        TinyDB.
+
+        Returns:
+             serialized_tournament[0] = dictionnaire du tournoi en cours.
+        """
         db = TinyDB('db.json')
         tournament_table = db.table('tournament')
         serialized_tournament = tournament_table.all()
@@ -170,26 +153,34 @@ class Tournament:
         return serialized_tournament[0]
 
     @classmethod
-    def create_instance(cls, tournament: dict, list_of_players: list):
+    def create_instance(cls, tournament: dict, list_of_actors: list):
         """
         Cette méthode permet de créer une instance de Tournament à partir d'un dictionnaire d'un tournoi.
 
-        Arg:
+        Args:
             tournament = un dictionnaire contenant les informations d'un tournoi.
-            list_of_players = la liste des objets joueurs.
+            list_of_actors = une liste des instances de Joueurs de la base de données.
 
         Returns:
-            une instance de Tournament.
+            created_tournament = une instance de Tournament.
         """
 
         name = tournament['name']
         place = tournament['place']
         date_of_tournament = tournament['date_of_tournament']
         description = tournament['description']
+        game_type = tournament['game_type']
         number_of_rounds = tournament['number_of_rounds']
-
-        created_tournament = cls(name, place, date_of_tournament, description, number_of_rounds)
+        created_tournament = cls(name, place, date_of_tournament, description, game_type, number_of_rounds)
         created_tournament.creation_date = tournament['creation_date']
+        list_of_players_ids = tournament['list_of_players']
+
+        list_of_players = []
+        for player in list_of_players_ids:
+            for actor in list_of_actors:
+                if player == actor.id:
+                    list_of_players.append(actor)
+
         created_tournament.list_of_players = list_of_players
 
         created_tournament.list_of_rounds = [Round.create_instance(round, list_of_players) for round in
