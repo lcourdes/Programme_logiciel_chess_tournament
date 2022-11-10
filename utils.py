@@ -4,9 +4,15 @@ from datetime import datetime
 def sort_by_ranking(list_of_players):
     """
     Cette fonction permet de classer des joueurs en fonction de leur classement.
+    Attention, aux échecs un haut classement est meilleur qu'un plus faible classement. Ainsi, un joueur classé 20
+    est mieux classé qu'un joueur classé 10.
 
-    Args: list_of_players: une liste d'objets joueurs.
-    Returns: sorted_players_by_ranking = liste d'objets joueurs classés par classement.
+    Arg:
+        list_of_players: une liste d'instances de Joueurs.
+
+    Returns:
+        sorted_players_by_ranking = liste d'instances de Joueurs classés du meilleur classement au moins bon
+    classement.
     """
 
     sorted_players_by_ranking = []
@@ -18,7 +24,7 @@ def sort_by_ranking(list_of_players):
                 if n == len(sorted_players_by_ranking):
                     sorted_players_by_ranking.append(player)
                 else:
-                    if player.ranking < sorted_players_by_ranking[n].ranking:
+                    if player.ranking > sorted_players_by_ranking[n].ranking:
                         sorted_players_by_ranking.insert(n, player)
                         break
                     else:
