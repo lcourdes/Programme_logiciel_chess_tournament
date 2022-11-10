@@ -33,6 +33,20 @@ def sort_by_ranking(list_of_players):
     return sorted_players_by_ranking
 
 
+def sort_by_name(list_of_players):
+    """
+    Cette fonction permet de classer des joueurs en fonction de leur nom de famille par ordre alphabétique.
+
+    Arg:
+        list_of_players: une liste d'instances de Joueurs.
+
+    Returns:
+        sorted_players_by_name = liste d'instances de Joueurs classés par nom.
+    """
+    sorted_players_by_name = sorted(list_of_players, key=lambda x: x.name)
+    return sorted_players_by_name
+
+
 def get_date_and_hour():
     """
     Récupère la date et l'heure actuelle.
