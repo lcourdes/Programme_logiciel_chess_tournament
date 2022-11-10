@@ -1,3 +1,6 @@
+from tinydb import TinyDB
+
+
 class Player:
     """
     CLasse qui définit un joueur.
@@ -42,6 +45,44 @@ class Player:
         }
 
         return serialized_player
+
+    @classmethod
+    def back_up_data(cls, list_of_actors):
+        """
+        Cette méthode permet de sauvegarder l'ensemble des joueurs de la base de données dans une table 'players'
+        TinyDB.
+
+        Arg:
+            list_of_actors: liste des joueurs de la base de données.
+        """
+        db = TinyDB('db.json')
+        players_table = db.table('players')
+        players_table.truncate()
+        serialized_players = []
+        for player in list_of_actors:
+            serialized_players.append(player.serialize())
+        players_table.insert_multiple(serialized_players)
+
+    @classmethod
+    def load_list_of_actors(cls):
+        """
+        Cette méthode permet de récupérer les informations inscrites dans la table 'players' TinyDB. Pour chacun des
+        dictionnaires de joueurs de cette table, une instance de Joueur est créée.
+
+        Returns:
+             list_of_actors : une liste de toutes les instances de Joueurs créées qui constitue désormais la base de
+             données des joueurs.
+        """
+        db = TinyDB('db.json')
+        players_table = db.table('players')
+        serialized_players = players_table.all()
+        list_of_actors = []
+        for player_dict in serialized_players:
+            player = Player.create_instance(player_dict)
+            list_of_actors.append(player)
+            player.assign_id(list_of_actors)
+
+        return list_of_actors
 
     @classmethod
     def create_instance(cls, player_dict):
