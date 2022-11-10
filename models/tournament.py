@@ -9,12 +9,14 @@ class Tournament:
     Classe qui définit un tournoi.
     """
 
-    def __init__(self, name: str, place: str, date_of_tournament: str, description: str, number_of_rounds: int = 4):
+    def __init__(self, name: str, place: str, date_of_tournament: list, description: str, game_type: str,
+                 number_of_rounds: int = 4):
         self.name = name
         self.place = place
         self.date_of_tournament = date_of_tournament
         self.list_of_players = []
         self.description = description
+        self.game_type = game_type
         self.number_of_rounds = number_of_rounds
         self.db = TinyDB('db.json')
 
