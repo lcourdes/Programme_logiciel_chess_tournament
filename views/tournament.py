@@ -8,6 +8,7 @@ def create_load_menu():
     Returns:
         chosen_option = integer correspondant à l'une des options proposées.
     """
+    print("Menu de création/chargement d'un tournoi.\n")
     print("Veuillez sélectionner une option ci-dessous en spécifiant le chiffre correspondant.\n")
     print("1 - Créer un nouveau tournoi.")
     print("2 - Charger un tournoi en cours.")
@@ -112,7 +113,7 @@ def view_tournament_manager_menu():
     Returns:
         chosen_option = integer correspondant à l'une des options proposées.
     """
-    print("Bienvenue dans le menu de gestion du tournoi en cours.")
+    print("Bienvenue dans le menu de gestion du tournoi en cours.\n")
     print("Veuillez sélectionner une option ci-dessous en spécifiant le chiffre correspondant.\n")
     print("0 - Quitter le programme.")
     print("1 - Revenir au menu principal.")
@@ -149,7 +150,7 @@ def main_tournament_menu():
     Returns:
         chosen_option = integer correspondant à l'une des options proposées.
     """
-    print("Menu Tournoi.")
+    print("Menu Tournoi.\n")
     print("Veuillez sélectionner une option ci-dessous en spécifiant le chiffre correspondant.\n")
     print("0 - Quitter le programme.")
     print("1 - Retourner au menu de gestion du tournoi.")
