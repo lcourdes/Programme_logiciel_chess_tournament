@@ -1,3 +1,4 @@
 env/
 .idea/
 flake8_rapports/
+db.json
