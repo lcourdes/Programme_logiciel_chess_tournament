@@ -12,7 +12,7 @@ def view_start_program():
         chosen_option = integer correspondant à l'une des options proposées.
     """
     print("Bienvenue sur le logiciel de gestion de tournoi d'échecs.")
-    with open("chess_piece.txt", "r") as chess_piece:
+    with open("views/chess_piece.txt", "r") as chess_piece:
         print(chess_piece.read())
     print("Veuillez sélectionner une option ci-dessous en spécifiant le chiffre correspondant.\n")
     print("0 - Quitter le programme.")
