@@ -8,7 +8,12 @@ class Tournament:
     Classe qui définit un tournoi.
     """
 
-    def __init__(self, name: str, place: str, date_of_tournament: list, description: str, game_type: str,
+    def __init__(self,
+                 name: str,
+                 place: str,
+                 date_of_tournament: list,
+                 description: str,
+                 game_type: str,
                  number_of_rounds: int = 4):
         self.name = name
         self.place = place
