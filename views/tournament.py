@@ -190,34 +190,40 @@ def view_tournament_details(serialized_players, serialized_tournament):
     print("*****************************************************************************************\n")
     print("Score des joueurs :\n")
     for player_id, score in serialized_tournament['players_score'].items():
-        print(serialized_players[player_id - 1]['name'] + " " + serialized_players[player_id - 1]['first_name']
-              + ": " + str(score) + " points.")
+        for player in serialized_players:
+            if player_id == player['id']:
+                print(player['name'] + " " + player['first_name'] + ": " + str(score) + " points.")
     print("\n*****************************************************************************************\n")
     print("Récapitulatif des tournées : \n")
-    for round in serialized_tournament['list_of_rounds']:
-        if round['list_of_matches'] == []:
-            print("La tournée " + round['name'] + " n'a pas encore été créée.")
-        else:
-            print(round['name'] + " :")
-            for match in round['list_of_matches']:
-                player_1 = serialized_players[match['list_of_two_players'][0]-1]
-                player_2 = serialized_players[match['list_of_two_players'][1]-1]
-                if match['result'] == ([], []):
-                    print('Le match opposant '
-                          + player_1['name'] + " " + player_1['first_name'] + " (" + str(player_1['ranking']) + ")"
-                          + " contre "
-                          + player_2['name'] + " " + player_2['first_name'] + " (" + str(player_2['ranking']) + ")"
-                          + " n'a pas encore été joué."
-                          )
-                else:
-                    winner = explicit_winner(match, player_1, player_2)
-                    print("Un match a opposé "
-                          + player_1['name'] + " " + player_1['first_name'] + " (" + str(player_1['ranking']) + ")"
-                          + " qui a joué les " + match['color_distribution'][match['list_of_two_players'][0]]
-                          + " contre "
-                          + player_2['name'] + " " + player_2['first_name'] + " (" + str(player_2['ranking']) + "). "
-                          + winner)
-            print("")
+    if serialized_tournament['list_of_rounds'] != []:
+        for round in serialized_tournament['list_of_rounds']:
+            if round['list_of_matches'] == []:
+                print("La tournée " + round['name'] + " n'a pas encore été créée.")
+            else:
+                print(round['name'] + " :")
+                for match in round['list_of_matches']:
+                    for player in serialized_players:
+                        if player['id'] == match['list_of_two_players'][0]:
+                            player_1 = player
+                        if player['id'] == match['list_of_two_players'][1]:
+                            player_2 = player
+                    if match['result'] == ([], []):
+                        print('Le match opposant '
+                              + player_1['name'] + " " + player_1['first_name'] + " (" + str(player_1['ranking']) + ")"
+                              + " contre "
+                              + player_2['name'] + " " + player_2['first_name'] + " (" + str(player_2['ranking']) + ")"
+                              + " n'a pas encore été joué."
+                              )
+                    else:
+                        winner = explicit_winner(match, player_1, player_2)
+                        print("Un match a opposé "
+                              + player_1['name'] + " " + player_1['first_name'] + " (" + str(player_1['ranking']) + ")"
+                              + " qui a joué les " + match['color_distribution'][match['list_of_two_players'][0]]
+                              + " contre "
+                              + player_2['name'] + " " + player_2['first_name'] + " (" + str(player_2['ranking'])
+                              + "). "
+                              + winner)
+                print("")
     please_continue()
 
 
@@ -261,8 +267,11 @@ def view_round_details(serialized_players, serialized_round):
     """
     print("Tournée en cours : " + serialized_round['name'] + "\n")
     for count, match in enumerate(serialized_round['list_of_matches']):
-        player_1 = serialized_players[match['list_of_two_players'][0] - 1]
-        player_2 = serialized_players[match['list_of_two_players'][1] - 1]
+        for player in serialized_players:
+            if player['id'] == match['list_of_two_players'][0]:
+                player_1 = player
+            if player['id'] == match['list_of_two_players'][1]:
+                player_2 = player
         count += 1
         is_played = ""
         if match['result'] != ([], []):
@@ -313,8 +322,11 @@ def view_get_result_of_match(serialized_players, serialized_round):
             match_number = input()
     print("\nVeuillez sélectionner une option ci-dessous en spécifiant le chiffre correspondant.\n")
 
-    player_1 = serialized_players[match['list_of_two_players'][0] - 1]
-    player_2 = serialized_players[match['list_of_two_players'][1] - 1]
+    for player in serialized_players:
+        if player['id'] == match['list_of_two_players'][0]:
+            player_1 = player
+        if player['id'] == match['list_of_two_players'][1]:
+            player_2 = player
     print("1 - " + player_1['name'] + " " + player_1['first_name'] + " (" + str(player_1['ranking']) + ") a gagné.")
     print("2 - " + player_2['name'] + " " + player_2['first_name'] + " (" + str(player_2['ranking']) + ") a gagné.")
     print("3 - Pat.")
@@ -328,8 +340,7 @@ def view_get_result_of_match(serialized_players, serialized_round):
             print("Entrez le chiffre 1, 2 ou 3.")
             chosen_option = input()
     result = {'match_index': int(match_number) - 1}
-    player_1_id = serialized_players.index(player_1) + 1
-    result['player_id'] = player_1_id
+    result['player_id'] = player_1['id']
     if chosen_option == "1":
         result['score'] = 1
     elif chosen_option == "2":

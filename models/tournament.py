@@ -86,7 +86,7 @@ class Tournament:
                 if score == score_of_player:
                     players.append(player)
             self.sorted_player_by_score[score] = players
-
+        print("0")
         return self.sorted_player_by_score
 
     def get_all_pairing_already_established(self):

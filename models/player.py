@@ -41,7 +41,8 @@ class Player:
             'first_name': self.first_name,
             'date_of_birth': self.date_of_birth,
             'gender': self.gender,
-            'ranking': self.ranking
+            'ranking': self.ranking,
+            'id': self.id
         }
 
         return serialized_player
