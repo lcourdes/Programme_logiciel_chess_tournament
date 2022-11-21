@@ -6,7 +6,7 @@ from utils import sort_by_name, sort_by_ranking
 from views.utils import print_back_data
 
 
-def control_player_menu(list_of_actors, in_tournament, tournament=None):
+def control_player_menu(list_of_actors, in_tournament, list_of_tournaments, tournament=None):
     """
     Cette fonction est appelée depuis soit :
         - 'control_tournament_manager()' auquel cas in_tournament est forcément True et tournament est une instance
@@ -36,6 +36,7 @@ def control_player_menu(list_of_actors, in_tournament, tournament=None):
         list_of_actors = la liste de toutes les instances de Joueurs.
         in_tournament = booléen. False = la fonction a été appelée depuis 'start_program_menu()'.
                                  True = la fonction a été appelée depuis 'control_tournament_manager()'
+        list_of_tournaments = Liste de toutes les instances de Tournament.
         tournament = None si la fonction a été appelée depuis 'start_program_menu()'
                      une instance de Tournament la fonction a été appelée depuis 'control_tournament_manager()'.
 
@@ -52,7 +53,7 @@ def control_player_menu(list_of_actors, in_tournament, tournament=None):
             print_back_data()
             Player.back_up_data(list_of_actors)
             if in_tournament:
-                tournament.back_up_data()
+                tournament.back_up_data(list_of_tournaments)
             return False
         elif chosen_option == 1:
             if not in_tournament:

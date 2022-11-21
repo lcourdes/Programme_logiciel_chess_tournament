@@ -23,12 +23,16 @@ class Tournament:
         self.game_type = game_type
         self.number_of_rounds = number_of_rounds
         self.db = TinyDB('db.json')
+        self.id = None
 
         self.creation_date = get_date_and_hour()
         self.list_of_rounds = []
         self.players_score = {}
         self.sorted_player_by_score = {}
         self.all_pairing_matches = []
+
+    def assign_id(self, list_of_tournament):
+        self.id = len(list_of_tournament)
 
     def create_rounds(self):
         """
@@ -120,7 +124,9 @@ class Tournament:
             'description': self.description,
             'game_type': self.game_type,
             'number_of_rounds': self.number_of_rounds,
-            'list_of_players': [player.id for player in self.list_of_players]}
+            'list_of_players': [player.id for player in self.list_of_players],
+            'id': self.id
+        }
 
         if self.list_of_rounds == []:
             serialized_tournament['list_of_rounds'] = []
@@ -134,28 +140,36 @@ class Tournament:
 
         return serialized_tournament
 
-    def back_up_data(self):
+    @classmethod
+    def back_up_data(cls, list_of_tournament):
         """
-        Cette fonction permet de sauvegarder les informations du tournoi en cours dans une table 'tournament' TinyDB.
+        Cette méthode permet de sauvegarder les informations de tous les tournois dans une table 'tournaments' TinyDB.
         """
-        tournament_table = self.db.table('tournament')
-        tournament_table.truncate()
-        tournament_table.insert(self.serialize())
+        db = TinyDB('db.json')
+        tournaments_table = db.table('tournaments')
+        tournaments_table.truncate()
+        serialized_tournaments = [tournament.serialize() for tournament in list_of_tournament]
+        tournaments_table.insert_multiple(serialized_tournaments)
 
     @classmethod
-    def load_tournament(cls):
+    def load_tournament(cls, list_of_actors):
         """
-        Cette méthode permet de charger les informations du tournoi en cours stockées dans la table 'tournament'
+        Cette méthode permet de charger les informations de tous les tournois stockées dans la table 'tournaments'
         TinyDB.
 
         Returns:
-             serialized_tournament[0] = dictionnaire du tournoi en cours.
+             list_of_tournaments : une liste de toutes les instances de Tournoi créées qui constitue désormais la
+             base de données des tournois.
         """
         db = TinyDB('db.json')
-        tournament_table = db.table('tournament')
-        serialized_tournament = tournament_table.all()
-
-        return serialized_tournament[0]
+        tournaments_table = db.table('tournaments')
+        serialized_tournaments = tournaments_table.all()
+        list_of_tournaments = []
+        for tournament_dict in serialized_tournaments:
+            tournament = Tournament.create_instance(tournament_dict, list_of_actors)
+            list_of_tournaments.append(tournament)
+            tournament.assign_id(list_of_tournaments)
+        return list_of_tournaments
 
     @classmethod
     def create_instance(cls, tournament: dict, list_of_actors: list):

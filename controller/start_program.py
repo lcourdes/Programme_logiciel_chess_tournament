@@ -5,7 +5,7 @@ from controller.player import control_player_menu
 from models.player import Player
 
 
-def start_program_menu(list_of_actors):
+def start_program_menu(list_of_actors, list_of_tournaments):
     """
     Cette fonction est appelée uniquement depuis le main.py.
     Elle permet de gérer les choix de l'utilisateur sur le menu d'accueil du programme.
@@ -16,6 +16,7 @@ def start_program_menu(list_of_actors):
 
     Arg:
         list_of_actors: la liste de toutes les instances de Joueurs.
+        list_of_tournaments = Liste de toutes les instances de Tournament.
 
     Returns:
          Etant donnée qu'une boucle while est présente, il est possible à tout moment de retourner à ce menu. Cette
@@ -29,14 +30,14 @@ def start_program_menu(list_of_actors):
             print_back_data()
             Player.back_up_data(list_of_actors)
             if tournament is not None:
-                tournament.back_up_data()
+                tournament.back_up_data(list_of_tournaments)
             return False
         elif chosen_option == 1:
             in_tournament = False
-            list_of_actors = control_player_menu(list_of_actors, in_tournament)
+            list_of_actors = control_player_menu(list_of_actors, in_tournament, list_of_tournaments)
             if list_of_actors is False:
                 return False
         elif chosen_option == 2:
-            running_program = control_create_load_tournament_menu(list_of_actors)
+            running_program = control_create_load_tournament_menu(list_of_actors, list_of_tournaments)
             if running_program is False:
                 return False

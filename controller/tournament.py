@@ -1,56 +1,57 @@
 from views.tournament import create_load_menu, data_loaded_successfully, no_existing_tournament, enter_tournament, \
     view_tournament_manager_menu, missing_players, main_tournament_menu, view_tournament_details, \
-    view_tournament_is_ended, view_round_details, view_round_is_ended, view_get_result_of_match
+    view_tournament_is_ended, view_round_details, view_round_is_ended, view_get_result_of_match, \
+    view_choose_tournament_to_load
 from views.utils import print_back_data, clear
 from models.tournament import Tournament
 from models.player import Player
 from controller.player import control_player_menu
 
 
-def control_create_load_tournament_menu(list_of_actors):
+def control_create_load_tournament_menu(list_of_actors, list_of_tournaments):
     """
     Cette fonction est appelée depuis 'start_program_menu()'.
     Elle permet de gérer les choix de l'utilisateur sur le menu de création ou de chargement d'un tournoi.
     Le menu de création/chargement d'un tournoi est appelé grâce à la fonction 'create_load_menu()'
 
-    Si l'utilisateur choisi d'accéder à la création d'un tournoi (1), le fonction 'create_tournament()' est appelée.
-    Si l'utilisateur choisi de charger un tournoi en cours (else), il est vérifié qu'il est possible de charger un
+    Si l'utilisateur choisit d'accéder à la création d'un tournoi (1), le fonction 'create_tournament()' est appelée.
+    Si l'utilisateur choisit de charger un tournoi en cours (else), il est vérifié qu'il est possible de charger un
     tournoi (ie. un tournoi est présent dans la table 'tournament' TinyDB). Si un tournoi existe, une instance de
     Tournament est créée. Si aucun tournoi n'existe, la fonction 'no_existing_tournament()' est appelée.
 
     Arg:
-        list_of_actors: la liste de toutes les instances de Joueurs.
+        list_of_actors: la liste de toutes les instances de Player.
+        list_of_tournaments: la liste de toutes les instances de Tournament.
 
     Returns:
          Cette fonction retourne le retour de la fonction 'control_tournament_manager' qui est donc appelée par ce
          biais.
     """
-    tournament = None
     next_menus_access = False
     while not next_menus_access:
         chosen_option = create_load_menu()
         if chosen_option == 1:
-            tournament = create_tournament()
-            return control_tournament_manager(list_of_actors, tournament)
+            tournament_index = create_tournament(list_of_tournaments)
+            return control_tournament_manager(list_of_actors, list_of_tournaments, tournament_index)
         else:
-            try:
-                tournoi_dict = Tournament.load_tournament()
-                tournament = Tournament.create_instance(tournoi_dict, list_of_actors)
-                data_loaded_successfully(tournament.name)
-                return control_tournament_manager(list_of_actors, tournament)
-            except IndexError:
-                no_existing_tournament()
-                continue
+            tournament_index = choose_tournament_to_load(list_of_tournaments)
+            if tournament_index is not None:
+                data_loaded_successfully(list_of_tournaments[tournament_index].name)
+                return control_tournament_manager(list_of_actors, list_of_tournaments, tournament_index)
 
 
-def create_tournament():
+def create_tournament(list_of_tournaments):
     """
     Cette fonction permet de demander à l'utilisateur d'entrer les informations pour créer un tournoi (via l'appel
     de la fonction 'enter_tournament()'.
     Grâce au dictionnaire reçu, il est désormais possible de créer une instance de Tournament.
+    L'instance de tournoi créée est ajoutée à la liste des tournois (list_of_tournaments)
+
+    Arg:
+        list_of_tournaments = Liste de toutes les instances de Tournament.
 
     Returns:
-         tournament = une instance de Tournament.
+         tournament_index = Un numéro correspondant à l'index du tournoi sélectionné dans la liste de tournois.
     """
     new_tournament = enter_tournament()
     tournament = Tournament(new_tournament['name'],
@@ -59,55 +60,80 @@ def create_tournament():
                             new_tournament['description'],
                             new_tournament['game_type'],
                             new_tournament['number_of_rounds'])
-    return tournament
+    list_of_tournaments.append(tournament)
+    tournament.assign_id(list_of_tournaments)
+    tournament_index = tournament.id - 1
+    return tournament_index
 
 
-def control_tournament_manager(list_of_actors, tournament):
+def choose_tournament_to_load(list_of_tournaments):
+    """
+    Cette fonction permet à l'utilisateur de choisir quel tournoi doit être chargé.
+
+    Arg:
+        list_of_tournaments = Liste de toutes les instances de Tournament.
+
+    Returns:
+         tournament_index = Un numéro correspondant à l'index du tournoi sélectionné dans la liste de tournois.
+    """
+    if list_of_tournaments == []:
+        no_existing_tournament()
+        return None
+    else:
+        serialized_tournaments = [tournament.serialize() for tournament in list_of_tournaments]
+        chosen_tournament = view_choose_tournament_to_load(serialized_tournaments)
+        index_tournament = int(chosen_tournament) - 1
+        return index_tournament
+
+
+def control_tournament_manager(list_of_actors, list_of_tournaments, tournament_index):
     """
     Cette fonction est appelée depuis 'control_create_load_tournament_menu()'.
     Elle permet de gérer les choix de l'utilisateur sur le menu de gestion d'un tournoi en cours.
     Le menu de gestion d'un tournoi est appelé grâce à la fonction 'view_tournament_manager_menu()'
 
-    Si l'utilisateur choisi de quitter le programme (0) tous les joueurs ainsi que le tournoi sont sauvegardés.
-    Si l'utilisateur choisi de revenir au menu principal (1) le tournoi est sauvegardé.
-    Si l'utilisateur choisi de gérer les joueurs du tournoi (2), la fonction 'control_player_menu()' est appelée.
-    Si l'utilisateur choisi de gérer le tournoi en lui_même (else), il est débord vérifié que huit joueurs sont
+    Si l'utilisateur choisit de quitter le programme (0) tous les joueurs ainsi que le tournoi sont sauvegardés.
+    Si l'utilisateur choisit de revenir au menu principal (1) le tournoi est sauvegardé.
+    Si l'utilisateur choisit de gérer les joueurs du tournoi (2), la fonction 'control_player_menu()' est appelée.
+    Si l'utilisateur choisit de gérer le tournoi en lui-même (else), il est débord vérifié que huit joueurs sont
     inscrits au tournoi avant d'appeler la fonction 'control_tournament_menu()'.
 
     Arg:
         list_of_actors = la liste de toutes les instances de Joueurs.
-        tournament = une instance de Tournament.
+        list_of_tournaments = Liste de toutes les instances de Tournament.
+        tournament_index = Un numéro correspondant à l'index du tournoi sélectionné dans la liste de tournois.
 
     Returns:
         False : dans le cas où le programme doit être terminé.
         True : permet de revenir au menu précédent 'start_program_menu()'
     """
+    tournament = list_of_tournaments[tournament_index]
     next_menus_access = False
     while not next_menus_access:
         chosen_option = view_tournament_manager_menu()
         if chosen_option == 0:
             print_back_data()
             Player.back_up_data(list_of_actors)
-            tournament.back_up_data()
+            tournament.back_up_data(list_of_tournaments)
             return False
         elif chosen_option == 1:
-            tournament.back_up_data()
+            tournament.back_up_data(list_of_tournaments)
             return True
         elif chosen_option == 2:
             in_tournament = True
-            player_menu = control_player_menu(list_of_actors, in_tournament, tournament)
+            player_menu = control_player_menu(list_of_actors, in_tournament, list_of_tournaments, tournament)
             if player_menu is False:
                 return False
         else:
             if len(tournament.list_of_players) < 8:
                 missing_players(len(tournament.list_of_players))
             else:
-                running_program = control_tournament_menu(tournament, list_of_actors)
+                running_program = control_tournament_menu(list_of_tournaments, tournament, list_of_actors)
                 if not running_program:
                     return False
 
 
-def control_tournament_menu(tournament, list_of_actors):
+def control_tournament_menu(list_of_tournaments, tournament, list_of_actors):
     """
     Cette fonction est appelée depuis 'control_tournament_manager()'.
     Tout d'abord, la fonction 'control_tournament()' est appelée pour initialiser ou mettre à jour certaines
@@ -122,8 +148,9 @@ def control_tournament_menu(tournament, list_of_actors):
     Si l'utilisateur choisi de lancer une tournée (else), la fonction 'control_round()' est appelée.
 
     Arg:
-        list_of_actors = la liste de toutes les instances de Joueurs.
+        list_of_tournaments = Liste de toutes les instances de Tournament.
         tournament = une instance de Tournament.
+        list_of_actors = la liste de toutes les instances de Joueurs.
 
     Returns:
         False : dans le cas où le programme doit être terminé.
@@ -136,14 +163,14 @@ def control_tournament_menu(tournament, list_of_actors):
         if chosen_option == 0:
             print_back_data()
             Player.back_up_data(list_of_actors)
-            tournament.back_up_data()
+            tournament.back_up_data(list_of_tournaments)
             return False
         elif chosen_option == 1:
             return True
         elif chosen_option == 2:
             control_tournament_details(tournament)
         elif chosen_option == 3:
-            running_program = control_round(tournament, list_of_actors)
+            running_program = control_round(list_of_tournaments, tournament, list_of_actors)
             if not running_program:
                 return False
 
@@ -151,7 +178,7 @@ def control_tournament_menu(tournament, list_of_actors):
 def control_tournament(tournament):
     """
     Cette fonction permet de vérifier si les rounds du tournoi en cours ont été instanciés grâce à l'appel de la
-    fonction 'check_rounds_initilization()'.
+    fonction 'check_rounds_initialization()'.
     Cette fonction met à jour les scores des joueurs du tournoi.
 
     Arg:
@@ -188,15 +215,16 @@ def control_tournament_details(tournament):
     view_tournament_details(serialized_players, serialized_tournament)
 
 
-def control_round(tournament, list_of_actors):
+def control_round(list_of_tournaments, tournament, list_of_actors):
     """
     Cette fonction permet de sélectionner un round en cours.
     Soit un round est déjà en cours (vérification à l'aide de la fonction 'check_if_round_in_progress()',
     soit un nouveau round est lancé, et est donc considéré dès lors comme en cours.
 
     Arg:
-        list_of_actors = la liste de toutes les instances de Joueurs.
+        list_of_tournaments = Liste de toutes les instances de Tournament.
         tournament = une instance de Tournament.
+        list_of_actors = la liste de toutes les instances de Joueurs.
 
     Returns:
         retourne le retour de la fonction 'control_round_details()'
@@ -208,7 +236,7 @@ def control_round(tournament, list_of_actors):
         else:
             view_tournament_is_ended(tournament.name)
             return True
-    return control_round_details(tournament, round, list_of_actors)
+    return control_round_details(list_of_tournaments, tournament, round, list_of_actors)
 
 
 def check_if_round_in_progress(tournament):
@@ -256,7 +284,7 @@ def launch_new_round(tournament):
             return round
 
 
-def control_round_details(tournament, round, list_of_actors):
+def control_round_details(list_of_tournaments, tournament, round, list_of_actors):
     """
     Cette fonction permet à l'utilisateur de gérer un round en cours.
     Cette fonction est appelée depuis 'control_round_details()'.
@@ -272,6 +300,7 @@ def control_round_details(tournament, round, list_of_actors):
     'view_is_round_ended()'.
 
     Args:
+        list_of_tournaments = Liste de toutes les instances de Tournament.
         tournament = une instance de Tournament.
         round = instance de Round considérée comme en cours.
         list_of_actors = la liste de toutes les instances de Joueurs.
@@ -288,7 +317,7 @@ def control_round_details(tournament, round, list_of_actors):
         if chosen_option == 0:
             print_back_data()
             Player.back_up_data(list_of_actors)
-            tournament.back_up_data()
+            tournament.back_up_data(list_of_tournaments)
             return False
         elif chosen_option == 1:
             clear()

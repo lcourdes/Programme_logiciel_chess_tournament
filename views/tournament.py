@@ -83,6 +83,52 @@ def enter_tournament():
     return created_tournament
 
 
+def view_choose_tournament_to_load(serialized_tournaments):
+    """
+    Cette fonction permet à l'utilisateur de choisir quel tournoi charger.
+
+    Arg:
+        serialized_tournaments: liste de dictionnaires contenant tous les tournois déjà créé.
+
+    Returns:
+        choosen_index_tournament: index du tournoi choisi par l'utilisateur.
+    """
+    print("Tournois enregistrés : \n")
+    list_of_valid_choices = []
+    for count, tournament in reversed(list(enumerate(serialized_tournaments))):
+        count += 1
+        list_of_valid_choices.append(str(count))
+        if len(tournament['date_of_tournament']) == 1:
+            date_of_tournament = tournament['date_of_tournament'][0]
+        else:
+            date_of_tournament = tournament['date_of_tournament'][0] + " - " + tournament['date_of_tournament'][1]
+
+        state = ""
+        if tournament['list_of_rounds'] != []:
+            last_round = tournament['list_of_rounds'][-1]
+            if last_round['list_of_matches'] != []:
+                last_match = last_round['list_of_matches'][-1]
+                if last_match['result'] == ([], []):
+                    state = " Etat : En cours."
+                else:
+                    state = " Etat : Terminé."
+            else:
+                state = " Etat : En cours."
+        else:
+            state = " Etat : Non commencé."
+        print("Tournoi - " + str(count) + " - "
+              + tournament['name']
+              + " à " + tournament['place']
+              + " (" + date_of_tournament + ")."
+              + state)
+    print("\nVeuillez sélectionner le tournoi que vous voulez gérer.")
+    print("Entrez le numéro du tournoi.\n")
+    user_input = input()
+    chosen_option = check_input(user_input, list_of_valid_choices)
+    clear()
+    return chosen_option
+
+
 def data_loaded_successfully(name_of_tournament):
     """
     Cette fonction permet d'informer l'utilisateur qu'un tournoi a été trouvé et donc chargé.
